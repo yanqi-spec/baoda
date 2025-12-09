@@ -22,7 +22,6 @@
       align-items: center;
       font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
       color: #fff;
-      transition: filter 0.5s ease;
     }
 
     /* 倒计时区域 */
@@ -46,79 +45,51 @@
       display: inline-block;
     }
 
+    /* ⭐ 显眼的总秒数：更大、更深、更强发光 */
     .total-seconds {
-      font-size: 36px;
-      font-weight: 800;
-      color: #ffd93d;
-      text-shadow: 0 0 12px rgba(255, 217, 61, 0.8);
+      font-size: 48px; /* ← 加大 */
+      font-weight: 900;
+      color: #ff9800; /* 橙金色，高对比 */
+      text-shadow: 
+        0 0 10px rgba(255, 152, 0, 0.9),
+        0 0 20px rgba(255, 152, 0, 0.7),
+        0 0 30px rgba(255, 152, 0, 0.5);
       margin-top: 12px;
       letter-spacing: 2px;
+      line-height: 1;
     }
 
     .container {
       text-align: center;
       z-index: 10;
+      position: relative;
     }
 
     .tongxiaomei {
       width: 180px;
       height: 180px;
-      position: relative;
+      border-radius: 50%;
+      overflow: hidden;
       cursor: pointer;
       user-select: none;
-      transition: transform 0.1s ease;
-    }
-
-    .face {
-      width: 140px;
-      height: 140px;
-      background: #ffdbac;
-      border-radius: 50%;
-      position: absolute;
-      top: 20px;
-      left: 20px;
-      z-index: 2;
-      transition: background 0.3s;
-    }
-
-    .eye {
-      width: 20px;
-      height: 20px;
-      background: #333;
-      border-radius: 50%;
-      position: absolute;
-      top: 50px;
-      transition: all 0.3s;
-    }
-    .eye.left { left: 40px; }
-    .eye.right { right: 40px; }
-
-    .mouth {
-      width: 50px;
-      height: 20px;
-      border-bottom: 4px solid #e75480;
-      border-radius: 0 0 25px 25px;
-      position: absolute;
-      bottom: 40px;
-      left: 45px;
-      transition: all 0.3s;
-    }
-
-    .hair {
-      width: 160px;
-      height: 100px;
-      background: #d4a76a;
-      border-radius: 80px 80px 0 0;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       position: absolute;
       top: 0;
-      left: 10px;
-      z-index: 1;
+      left: 0;
+    }
+
+    .tongxiaomei img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
     }
 
     .name {
       font-size: 32px;
       font-weight: 800;
-      margin-top: 16px;
+      margin-top: 200px;
       background: linear-gradient(90deg, #ff6b6b, #ff4757, #ff2e63);
       -webkit-background-clip: text;
       background-clip: text;
@@ -186,19 +157,6 @@
 
     @keyframes fallCoin {
       to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-    }
-
-    /* 跑掉效果 */
-    .run-away {
-      animation: shakeAndShrink 3s ease-in-out;
-    }
-
-    @keyframes shakeAndShrink {
-      0%, 100% { transform: scale(1); }
-      20% { transform: translateX(-30px) scale(0.9); }
-      40% { transform: translateX(20px) scale(0.85); }
-      60% { transform: translateX(-15px) scale(0.8); }
-      80% { transform: translateX(10px) scale(0.75); }
     }
 
     /* 彩虹爱心 */
@@ -318,15 +276,10 @@
     <div class="total-seconds" id="totalSeconds">...</div>
   </div>
 
-  <!-- 中央角色 -->
-  <div class="container">
+  <!-- 中央角色（图片头像） -->
+  <div class="container" id="container">
     <div class="tongxiaomei" id="target">
-      <div class="hair"></div>
-      <div class="face" id="face">
-        <div class="eye left" id="eyeL"></div>
-        <div class="eye right" id="eyeR"></div>
-        <div class="mouth" id="mouth"></div>
-      </div>
+      <img id="avatarImg" src="https://pic1.imgdb.cn/item/6937dfd200233646958d5a4d.jpg" alt="童小美">
     </div>
     <div class="name">童小美</div>
     <div class="hint">点击暴打童小美！</div>
@@ -335,7 +288,7 @@
   <!-- 整蛊按钮 -->
   <button id="jokeBtn">我要下班</button>
 
-  <!-- 强制弹窗（初始隐藏） -->
+  <!-- 强制弹窗 -->
   <div id="modal">
     <div class="modal-content">
       <h3>想下班？</h3>
@@ -347,6 +300,29 @@
   </div>
 
   <script>
+    // ====== 头像列表 ======
+    const avatarUrls = [
+      "https://pic1.imgdb.cn/item/6937dfd200233646958d5a4d.jpg",
+      "https://pic1.imgdb.cn/item/6937e033f9354404e33f7d60.jpg",
+      "https://pic1.imgdb.cn/item/6937e02bf9354404e33f7d5d.jpg",
+      "https://pic1.imgdb.cn/item/6937e031f9354404e33f7d5f.jpg",
+      "https://pic1.imgdb.cn/item/6937e02ef9354404e33f7d5e.jpg"
+    ];
+
+    let currentAvatar = avatarUrls[0];
+    const avatarImg = document.getElementById('avatarImg');
+    const target = document.getElementById('target');
+    const container = document.getElementById('container');
+
+    function changeRandomAvatar() {
+      let newUrl;
+      do {
+        newUrl = avatarUrls[Math.floor(Math.random() * avatarUrls.length)];
+      } while (newUrl === currentAvatar && avatarUrls.length > 1);
+      currentAvatar = newUrl;
+      avatarImg.src = newUrl;
+    }
+
     // ====== 倒计时逻辑 ======
     const targetTime = new Date('2025-12-09T18:00:00').getTime();
     const countdownEl = document.getElementById('countdown');
@@ -378,14 +354,34 @@
     updateCountdown();
     setInterval(updateCountdown, 1000);
 
-    // ====== 点击与彩蛋逻辑 ======
-    let clickCount = 0;
-    const target = document.getElementById('target');
-    const face = document.getElementById('face');
-    const eyeL = document.getElementById('eyeL');
-    const eyeR = document.getElementById('eyeR');
-    const mouth = document.getElementById('mouth');
+    // ====== 自动逃跑模式 ======
+    function autoRunAway() {
+      const interval = 3000 + Math.random() * 2000; // 3~5秒
+      setTimeout(() => {
+        if (Math.random() > 0.3) { // 70% 概率逃跑
+          const maxX = window.innerWidth - target.offsetWidth;
+          const maxY = window.innerHeight - target.offsetHeight - 100; // 避开底部按钮
 
+          const newX = Math.max(20, Math.min(maxX - 20, Math.random() * maxX));
+          const newY = Math.max(20, Math.min(maxY - 20, Math.random() * maxY));
+
+          target.style.transition = 'transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
+          target.style.transform = `translate(${newX}px, ${newY}px)`;
+
+          // 1.5秒后自动复位（可选，也可永久停留）
+          setTimeout(() => {
+            target.style.transition = 'transform 0.8s ease-out';
+            target.style.transform = 'translate(0, 0)';
+          }, 1500);
+        }
+        autoRunAway(); // 递归调用，持续逃跑
+      }, interval);
+    }
+
+    // 启动自动逃跑
+    autoRunAway();
+
+    // ====== 气泡提示 ======
     function createSpeech(text, x, y) {
       const bubble = document.createElement('div');
       bubble.className = 'speech-bubble';
@@ -396,6 +392,7 @@
       setTimeout(() => bubble.remove(), 2200);
     }
 
+    // ====== 特效触发 ======
     function triggerSurprise(level) {
       const rect = target.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
@@ -403,6 +400,7 @@
 
       switch (level) {
         case 1:
+          // 抖动身体
           document.body.style.transform = 'translateX(5px)';
           setTimeout(() => document.body.style.transform = '', 100);
           setTimeout(() => document.body.style.transform = 'translateX(-5px)', 50);
@@ -410,12 +408,7 @@
           createSpeech('啊！别打了！', centerX, centerY);
           break;
         case 2:
-          face.style.background = '#cfd8dc';
-          eyeL.style.height = '8px'; eyeR.style.height = '8px';
-          mouth.style.borderBottomColor = '#9e9e9e';
-          mouth.style.borderRadius = '25px 25px 0 0';
-          mouth.style.height = '10px';
-          document.body.style.filter = 'grayscale(80%)';
+          // ❌ 已移除灰色滤镜
           createSpeech('呜呜...我错了...', centerX, centerY);
           break;
         case 3:
@@ -432,6 +425,7 @@
           createSpeech('打赏成功！', centerX, centerY);
           break;
         case 4:
+          // 跑掉（手动触发）
           target.classList.add('run-away');
           setTimeout(() => target.classList.remove('run-away'), 3000);
           createSpeech('我跑！', centerX, centerY);
@@ -453,14 +447,24 @@
       }
     }
 
+    // ====== 点击暴打 ======
+    let clickCount = 0;
     target.addEventListener('click', function(e) {
       clickCount++;
       const hitCount = Math.floor(clickCount / 10);
       const remainder = clickCount % 10;
 
+      // 缩放反馈
       this.style.transform = 'scale(0.85)';
-      setTimeout(() => this.style.transform = '', 150);
+      setTimeout(() => {
+        this.style.transform = this.style.transform.includes('translate') 
+          ? this.style.transform : 'scale(1)';
+      }, 150);
 
+      // 随机换头像
+      changeRandomAvatar();
+
+      // 爱心爆炸
       const rect = this.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
@@ -503,7 +507,7 @@
       "谁让你下班了？",
       "你求求我？",
       "喊爸爸！",
-      "FORCE_DAD", // 特殊标记：强制输入
+      "FORCE_DAD",
       "那你乖吗？",
       "乖就再打10下童小美！",
       "不许摸鱼！KPI完成了吗？",
@@ -525,19 +529,12 @@
       const y = rect.top;
 
       if (msg === "FORCE_DAD") {
-        // 显示强制弹窗
         modal.classList.add('active');
         dadInput.value = '';
         dadInput.focus();
       } else {
         createSpeech(msg, x, y);
       }
-    });
-
-    // 弹窗逻辑
-    submitBtn.addEventListener('click', checkDad);
-    dadInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') checkDad();
     });
 
     function checkDad() {
@@ -548,17 +545,19 @@
         dadInput.value = '';
         dadInput.placeholder = "不对！叫爸爸！";
         dadInput.focus();
-        // 震动反馈
         modal.style.transform = 'translateX(6px)';
         setTimeout(() => modal.style.transform = 'translateX(-6px)', 50);
         setTimeout(() => modal.style.transform = 'translateX(0)', 100);
       }
     }
 
-    // 防止关闭弹窗（点击遮罩无效）
+    submitBtn.addEventListener('click', checkDad);
+    dadInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkDad();
+    });
+
     modal.addEventListener('click', function(e) {
       if (e.target === modal) {
-        // 不允许关闭，除非输入正确
         e.stopPropagation();
       }
     });
