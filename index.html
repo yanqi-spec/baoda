@@ -1,0 +1,567 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>暴打童小美 💥</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffeaa7, #ff7675);
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+      color: #fff;
+      transition: filter 0.5s ease;
+    }
+
+    /* 倒计时区域 */
+    .countdown-container {
+      position: absolute;
+      top: 20px;
+      text-align: center;
+      z-index: 100;
+      width: 100%;
+    }
+
+    .countdown-banner {
+      background: rgba(0, 0, 0, 0.65);
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      backdrop-filter: blur(6px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      display: inline-block;
+    }
+
+    .total-seconds {
+      font-size: 36px;
+      font-weight: 800;
+      color: #ffd93d;
+      text-shadow: 0 0 12px rgba(255, 217, 61, 0.8);
+      margin-top: 12px;
+      letter-spacing: 2px;
+    }
+
+    .container {
+      text-align: center;
+      z-index: 10;
+    }
+
+    .tongxiaomei {
+      width: 180px;
+      height: 180px;
+      position: relative;
+      cursor: pointer;
+      user-select: none;
+      transition: transform 0.1s ease;
+    }
+
+    .face {
+      width: 140px;
+      height: 140px;
+      background: #ffdbac;
+      border-radius: 50%;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 2;
+      transition: background 0.3s;
+    }
+
+    .eye {
+      width: 20px;
+      height: 20px;
+      background: #333;
+      border-radius: 50%;
+      position: absolute;
+      top: 50px;
+      transition: all 0.3s;
+    }
+    .eye.left { left: 40px; }
+    .eye.right { right: 40px; }
+
+    .mouth {
+      width: 50px;
+      height: 20px;
+      border-bottom: 4px solid #e75480;
+      border-radius: 0 0 25px 25px;
+      position: absolute;
+      bottom: 40px;
+      left: 45px;
+      transition: all 0.3s;
+    }
+
+    .hair {
+      width: 160px;
+      height: 100px;
+      background: #d4a76a;
+      border-radius: 80px 80px 0 0;
+      position: absolute;
+      top: 0;
+      left: 10px;
+      z-index: 1;
+    }
+
+    .name {
+      font-size: 32px;
+      font-weight: 800;
+      margin-top: 16px;
+      background: linear-gradient(90deg, #ff6b6b, #ff4757, #ff2e63);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: 2px;
+    }
+
+    .hint {
+      margin-top: 12px;
+      font-size: 16px;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+      opacity: 0.9;
+    }
+
+    /* 爱心粒子 */
+    .heart-particle {
+      position: absolute;
+      font-size: 26px;
+      pointer-events: none;
+      opacity: 1;
+      z-index: 5;
+      text-shadow: 0 0 10px rgba(255, 71, 87, 0.8);
+    }
+
+    @keyframes bounceFall {
+      0% { transform: translate(0, 0) scale(0.3); opacity: 1; }
+      60% { transform: translate(var(--tx), var(--ty)) scale(1.1); }
+      75% { transform: translate(var(--tx), calc(var(--ty) - 20px)) scale(0.95); }
+      90% { transform: translate(var(--tx), var(--ty)) scale(1.02); }
+      100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; }
+    }
+
+    .explode {
+      animation: bounceFall 2.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+    }
+
+    /* 气泡提示 */
+    .speech-bubble {
+      position: absolute;
+      background: white;
+      color: #333;
+      padding: 10px 18px;
+      border-radius: 14px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 20;
+      animation: fadeOut 2.2s forwards;
+    }
+
+    @keyframes fadeOut {
+      0%, 70% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* 金币 */
+    .coin {
+      position: absolute;
+      font-size: 20px;
+      color: gold;
+      text-shadow: 0 0 8px rgba(255,215,0,0.8);
+      z-index: 6;
+      animation: fallCoin 3s linear forwards;
+    }
+
+    @keyframes fallCoin {
+      to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* 跑掉效果 */
+    .run-away {
+      animation: shakeAndShrink 3s ease-in-out;
+    }
+
+    @keyframes shakeAndShrink {
+      0%, 100% { transform: scale(1); }
+      20% { transform: translateX(-30px) scale(0.9); }
+      40% { transform: translateX(20px) scale(0.85); }
+      60% { transform: translateX(-15px) scale(0.8); }
+      80% { transform: translateX(10px) scale(0.75); }
+    }
+
+    /* 彩虹爱心 */
+    .rainbow-heart {
+      position: absolute;
+      font-size: 28px;
+      opacity: 0;
+      z-index: 8;
+      animation: rainbowFall 4s linear forwards;
+    }
+
+    @keyframes rainbowFall {
+      0% { opacity: 1; transform: translateY(-100px) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
+
+    /* 整蛊按钮 */
+    #jokeBtn {
+      position: absolute;
+      bottom: 30px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      transition: all 0.2s;
+      z-index: 30;
+    }
+
+    #jokeBtn:hover {
+      background: #ff4757;
+      transform: scale(1.05);
+    }
+
+    /* 抖动动画 */
+    .shake {
+      animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+      20%, 40%, 60%, 80% { transform: translateX(6px); }
+    }
+
+    /* 强制弹窗 */
+    #modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    #modal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 320px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .modal-content h3 {
+      color: #ff4757;
+      margin-bottom: 20px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      font-size: 18px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .modal-content button {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .modal-content button:hover {
+      background: #ff4757;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 倒计时 -->
+  <div class="countdown-container">
+    <div class="countdown-banner" id="countdown">⏳ 计算中...</div>
+    <div class="total-seconds" id="totalSeconds">...</div>
+  </div>
+
+  <!-- 中央角色 -->
+  <div class="container">
+    <div class="tongxiaomei" id="target">
+      <div class="hair"></div>
+      <div class="face" id="face">
+        <div class="eye left" id="eyeL"></div>
+        <div class="eye right" id="eyeR"></div>
+        <div class="mouth" id="mouth"></div>
+      </div>
+    </div>
+    <div class="name">童小美</div>
+    <div class="hint">点击暴打童小美！</div>
+  </div>
+
+  <!-- 整蛊按钮 -->
+  <button id="jokeBtn">我要下班</button>
+
+  <!-- 强制弹窗（初始隐藏） -->
+  <div id="modal">
+    <div class="modal-content">
+      <h3>想下班？</h3>
+      <p>叫爸爸才能走！</p>
+      <input type="text" id="dadInput" placeholder="输入：爸爸" maxlength="4" />
+      <br />
+      <button id="submitDad">确定</button>
+    </div>
+  </div>
+
+  <script>
+    // ====== 倒计时逻辑 ======
+    const targetTime = new Date('2025-12-09T18:00:00').getTime();
+    const countdownEl = document.getElementById('countdown');
+    const totalSecondsEl = document.getElementById('totalSeconds');
+
+    function updateCountdown() {
+      const now = new Date().getTime();
+      const diff = targetTime - now;
+
+      if (diff <= 0) {
+        countdownEl.textContent = '🎉 童小美已经下班啦！';
+        totalSecondsEl.textContent = '0 秒';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      let text = `⏰ 距离童小美下班还剩：`;
+      if (days > 0) text += `${days}天 `;
+      text += `${hours}小时 ${minutes}分钟`;
+
+      countdownEl.textContent = text;
+      totalSecondsEl.textContent = `${Math.ceil(diff / 1000)} 秒`;
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    // ====== 点击与彩蛋逻辑 ======
+    let clickCount = 0;
+    const target = document.getElementById('target');
+    const face = document.getElementById('face');
+    const eyeL = document.getElementById('eyeL');
+    const eyeR = document.getElementById('eyeR');
+    const mouth = document.getElementById('mouth');
+
+    function createSpeech(text, x, y) {
+      const bubble = document.createElement('div');
+      bubble.className = 'speech-bubble';
+      bubble.textContent = text;
+      bubble.style.left = `${x}px`;
+      bubble.style.top = `${y - 90}px`;
+      document.body.appendChild(bubble);
+      setTimeout(() => bubble.remove(), 2200);
+    }
+
+    function triggerSurprise(level) {
+      const rect = target.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      switch (level) {
+        case 1:
+          document.body.style.transform = 'translateX(5px)';
+          setTimeout(() => document.body.style.transform = '', 100);
+          setTimeout(() => document.body.style.transform = 'translateX(-5px)', 50);
+          setTimeout(() => document.body.style.transform = '', 150);
+          createSpeech('啊！别打了！', centerX, centerY);
+          break;
+        case 2:
+          face.style.background = '#cfd8dc';
+          eyeL.style.height = '8px'; eyeR.style.height = '8px';
+          mouth.style.borderBottomColor = '#9e9e9e';
+          mouth.style.borderRadius = '25px 25px 0 0';
+          mouth.style.height = '10px';
+          document.body.style.filter = 'grayscale(80%)';
+          createSpeech('呜呜...我错了...', centerX, centerY);
+          break;
+        case 3:
+          for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+              const coin = document.createElement('div');
+              coin.innerHTML = '💰';
+              coin.className = 'coin';
+              coin.style.left = `${Math.random() * window.innerWidth}px`;
+              document.body.appendChild(coin);
+              setTimeout(() => coin.remove(), 3000);
+            }, i * 100);
+          }
+          createSpeech('打赏成功！', centerX, centerY);
+          break;
+        case 4:
+          target.classList.add('run-away');
+          setTimeout(() => target.classList.remove('run-away'), 3000);
+          createSpeech('我跑！', centerX, centerY);
+          break;
+        case 5:
+          for (let i = 0; i < 40; i++) {
+            setTimeout(() => {
+              const h = document.createElement('div');
+              h.innerHTML = '💖';
+              h.className = 'rainbow-heart';
+              h.style.left = `${Math.random() * window.innerWidth}px`;
+              h.style.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+              document.body.appendChild(h);
+              setTimeout(() => h.remove(), 4000);
+            }, i * 80);
+          }
+          createSpeech('你赢了！童小美投降！', centerX, centerY);
+          break;
+      }
+    }
+
+    target.addEventListener('click', function(e) {
+      clickCount++;
+      const hitCount = Math.floor(clickCount / 10);
+      const remainder = clickCount % 10;
+
+      this.style.transform = 'scale(0.85)';
+      setTimeout(() => this.style.transform = '', 150);
+
+      const rect = this.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      const heartCount = 16;
+      for (let i = 0; i < heartCount; i++) {
+        const heart = document.createElement('div');
+        heart.innerHTML = '❤';
+        heart.className = 'heart-particle';
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 250 + Math.random() * 350;
+        const tx = Math.cos(angle) * distance;
+        const ty = Math.sin(angle) * distance;
+
+        heart.style.left = `${centerX}px`;
+        heart.style.top = `${centerY}px`;
+        heart.style.setProperty('--tx', `${tx}px`);
+        heart.style.setProperty('--ty', `${ty}px`);
+
+        document.body.appendChild(heart);
+        setTimeout(() => heart.classList.add('explode'), 10);
+        setTimeout(() => heart.remove(), 2800);
+      }
+
+      if (remainder === 0) {
+        const level = Math.min(hitCount % 5 || 5, 5);
+        triggerSurprise(level);
+      }
+    });
+
+    // ====== 整蛊按钮：10阶段 ======
+    let jokeClicks = 0;
+    const jokeBtn = document.getElementById('jokeBtn');
+    const modal = document.getElementById('modal');
+    const dadInput = document.getElementById('dadInput');
+    const submitBtn = document.getElementById('submitDad');
+
+    const jokes = [
+      "谁让你下班了？",
+      "你求求我？",
+      "喊爸爸！",
+      "FORCE_DAD", // 特殊标记：强制输入
+      "那你乖吗？",
+      "乖就再打10下童小美！",
+      "不许摸鱼！KPI完成了吗？",
+      "老板说：今天全员加班！",
+      "你的工位已上锁🔒",
+      "下班？梦里啥都有！"
+    ];
+
+    jokeBtn.addEventListener('click', function() {
+      jokeClicks++;
+      const index = (jokeClicks - 1) % jokes.length;
+      const msg = jokes[index];
+
+      jokeBtn.classList.add('shake');
+      setTimeout(() => jokeBtn.classList.remove('shake'), 820);
+
+      const rect = jokeBtn.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top;
+
+      if (msg === "FORCE_DAD") {
+        // 显示强制弹窗
+        modal.classList.add('active');
+        dadInput.value = '';
+        dadInput.focus();
+      } else {
+        createSpeech(msg, x, y);
+      }
+    });
+
+    // 弹窗逻辑
+    submitBtn.addEventListener('click', checkDad);
+    dadInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkDad();
+    });
+
+    function checkDad() {
+      const val = dadInput.value.trim();
+      if (val === "爸爸") {
+        modal.classList.remove('active');
+      } else {
+        dadInput.value = '';
+        dadInput.placeholder = "不对！叫爸爸！";
+        dadInput.focus();
+        // 震动反馈
+        modal.style.transform = 'translateX(6px)';
+        setTimeout(() => modal.style.transform = 'translateX(-6px)', 50);
+        setTimeout(() => modal.style.transform = 'translateX(0)', 100);
+      }
+    }
+
+    // 防止关闭弹窗（点击遮罩无效）
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        // 不允许关闭，除非输入正确
+        e.stopPropagation();
+      }
+    });
+  </script>
+</body>
+</html>
