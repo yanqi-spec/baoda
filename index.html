@@ -45,11 +45,10 @@
       display: inline-block;
     }
 
-    /* ⭐ 显眼的总秒数：更大、更深、更强发光 */
     .total-seconds {
-      font-size: 48px; /* ← 加大 */
+      font-size: 48px;
       font-weight: 900;
-      color: #ff9800; /* 橙金色，高对比 */
+      color: #ff9800;
       text-shadow: 
         0 0 10px rgba(255, 152, 0, 0.9),
         0 0 20px rgba(255, 152, 0, 0.7),
@@ -105,7 +104,6 @@
       opacity: 0.9;
     }
 
-    /* 爱心粒子 */
     .heart-particle {
       position: absolute;
       font-size: 26px;
@@ -127,7 +125,6 @@
       animation: bounceFall 2.8s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
     }
 
-    /* 气泡提示 */
     .speech-bubble {
       position: absolute;
       background: white;
@@ -145,7 +142,6 @@
       100% { opacity: 0; }
     }
 
-    /* 金币 */
     .coin {
       position: absolute;
       font-size: 20px;
@@ -159,7 +155,6 @@
       to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
     }
 
-    /* 彩虹爱心 */
     .rainbow-heart {
       position: absolute;
       font-size: 28px;
@@ -173,7 +168,6 @@
       100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
     }
 
-    /* 整蛊按钮 */
     #jokeBtn {
       position: absolute;
       bottom: 30px;
@@ -195,7 +189,6 @@
       transform: scale(1.05);
     }
 
-    /* 抖动动画 */
     .shake {
       animation: shake 0.82s cubic-bezier(.36,.07,.19,.97) both;
     }
@@ -206,7 +199,7 @@
       20%, 40%, 60%, 80% { transform: translateX(6px); }
     }
 
-    /* 强制弹窗 */
+    /* 强制弹窗（原“下班”弹窗） */
     #modal {
       position: fixed;
       top: 0;
@@ -266,6 +259,74 @@
     .modal-content button:hover {
       background: #ff4757;
     }
+
+    /* 新增：进入网站必须喊爸爸的弹窗 */
+    #entryModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1001;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    #entryModal.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-entry-content {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      text-align: center;
+      max-width: 350px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .modal-entry-content h3 {
+      color: #ff4757;
+      margin-bottom: 20px;
+      font-size: 24px;
+    }
+
+    .modal-entry-content p {
+      margin-bottom: 15px;
+      color: #555;
+    }
+
+    .modal-entry-content input {
+      width: 100%;
+      padding: 12px;
+      font-size: 18px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      margin: 10px 0;
+      text-align: center;
+    }
+
+    .modal-entry-content button {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .modal-entry-content button:hover {
+      background: #ff4757;
+    }
   </style>
 </head>
 <body>
@@ -288,7 +349,7 @@
   <!-- 整蛊按钮 -->
   <button id="jokeBtn">我要下班</button>
 
-  <!-- 强制弹窗 -->
+  <!-- 原“下班”弹窗 -->
   <div id="modal">
     <div class="modal-content">
       <h3>想下班？</h3>
@@ -296,6 +357,18 @@
       <input type="text" id="dadInput" placeholder="输入：爸爸" maxlength="4" />
       <br />
       <button id="submitDad">确定</button>
+    </div>
+  </div>
+
+  <!-- 新增：首次进入必须喊爸爸的弹窗 -->
+  <div id="entryModal">
+    <div class="modal-entry-content">
+      <h3>⚠️ 警告！</h3>
+      <p>想进这个网站？</p>
+      <p>先叫一声：<strong>爸爸</strong></p>
+      <input type="text" id="entryDadInput" placeholder="输入：爸爸" maxlength="4" />
+      <br />
+      <button id="submitEntryDad">确定</button>
     </div>
   </div>
 
@@ -330,9 +403,7 @@
       const month = now.getMonth();
       const day = now.getDate();
 
-      // 今天 18:00
       const today18 = new Date(year, month, day, 18, 0, 0);
-      // 如果已经过了 18:00，则目标是明天 18:00
       if (now >= today18) {
         return new Date(year, month, day + 1, 18, 0, 0).getTime();
       } else {
@@ -372,11 +443,11 @@
 
     // ====== 自动逃跑模式 ======
     function autoRunAway() {
-      const interval = 3000 + Math.random() * 2000; // 3~5秒
+      const interval = 3000 + Math.random() * 2000;
       setTimeout(() => {
-        if (Math.random() > 0.3) { // 70% 概率逃跑
+        if (Math.random() > 0.3) {
           const maxX = window.innerWidth - target.offsetWidth;
-          const maxY = window.innerHeight - target.offsetHeight - 100; // 避开底部按钮
+          const maxY = window.innerHeight - target.offsetHeight - 100;
 
           const newX = Math.max(20, Math.min(maxX - 20, Math.random() * maxX));
           const newY = Math.max(20, Math.min(maxY - 20, Math.random() * maxY));
@@ -384,17 +455,15 @@
           target.style.transition = 'transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55)';
           target.style.transform = `translate(${newX}px, ${newY}px)`;
 
-          // 1.5秒后自动复位（可选，也可永久停留）
           setTimeout(() => {
             target.style.transition = 'transform 0.8s ease-out';
             target.style.transform = 'translate(0, 0)';
           }, 1500);
         }
-        autoRunAway(); // 递归调用，持续逃跑
+        autoRunAway();
       }, interval);
     }
 
-    // 启动自动逃跑
     autoRunAway();
 
     // ====== 气泡提示 ======
@@ -416,7 +485,6 @@
 
       switch (level) {
         case 1:
-          // 抖动身体
           document.body.style.transform = 'translateX(5px)';
           setTimeout(() => document.body.style.transform = '', 100);
           setTimeout(() => document.body.style.transform = 'translateX(-5px)', 50);
@@ -424,7 +492,6 @@
           createSpeech('啊！别打了！', centerX, centerY);
           break;
         case 2:
-          // ❌ 已移除灰色滤镜
           createSpeech('呜呜...我错了...', centerX, centerY);
           break;
         case 3:
@@ -441,7 +508,6 @@
           createSpeech('打赏成功！', centerX, centerY);
           break;
         case 4:
-          // 跑掉（手动触发）
           target.classList.add('run-away');
           setTimeout(() => target.classList.remove('run-away'), 3000);
           createSpeech('我跑！', centerX, centerY);
@@ -466,21 +532,20 @@
     // ====== 点击暴打 ======
     let clickCount = 0;
     target.addEventListener('click', function(e) {
+      if (!window.entryPassed) return; // 如果还没通过入口验证，禁止点击
+
       clickCount++;
       const hitCount = Math.floor(clickCount / 10);
       const remainder = clickCount % 10;
 
-      // 缩放反馈
       this.style.transform = 'scale(0.85)';
       setTimeout(() => {
         this.style.transform = this.style.transform.includes('translate') 
           ? this.style.transform : 'scale(1)';
       }, 150);
 
-      // 随机换头像
       changeRandomAvatar();
 
-      // 爱心爆炸
       const rect = this.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
@@ -512,8 +577,37 @@
       }
     });
 
-    // ====== 整蛊按钮：10阶段 + 下班时间判断 ======
-    let jokeClicks = 0;
+    // ====== 入口控制：必须喊爸爸才能进 ======
+    window.entryPassed = false;
+    let postEntryDadCount = 0; // 进入后，“我要下班”被点了多少次（用于控制再整蛊2次）
+
+    const entryModal = document.getElementById('entryModal');
+    const entryDadInput = document.getElementById('entryDadInput');
+    const submitEntryBtn = document.getElementById('submitEntryDad');
+
+    function checkEntryDad() {
+      const val = entryDadInput.value.trim();
+      if (val === "爸爸") {
+        window.entryPassed = true;
+        entryModal.classList.remove('active');
+      } else {
+        entryDadInput.value = '';
+        entryDadInput.placeholder = "不对！叫爸爸！";
+        entryDadInput.focus();
+      }
+    }
+
+    submitEntryBtn.addEventListener('click', checkEntryDad);
+    entryDadInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') checkEntryDad();
+    });
+
+    // 页面加载时显示入口弹窗
+    window.addEventListener('load', () => {
+      entryModal.classList.add('active');
+    });
+
+    // ====== 整蛊按钮逻辑（含额外2次喊爸爸） ======
     const jokeBtn = document.getElementById('jokeBtn');
     const modal = document.getElementById('modal');
     const dadInput = document.getElementById('dadInput');
@@ -532,18 +626,31 @@
       "下班？梦里啥都有！"
     ];
 
+    let jokeClicks = 0;
+
     jokeBtn.addEventListener('click', function() {
+      if (!window.entryPassed) return;
+
+      postEntryDadCount++;
+
+      // 前两次点击“我要下班”，强制再喊爸爸（使用原弹窗）
+      if (postEntryDadCount <= 2) {
+        modal.classList.add('active');
+        dadInput.value = '';
+        dadInput.focus();
+        return;
+      }
+
+      // 正常下班时间判断
       const now = new Date();
       const currentHour = now.getHours();
       const currentMinute = now.getMinutes();
 
-      // ✅ 核心修改：18:00 后直接放行
       if (currentHour > 18 || (currentHour === 18 && currentMinute >= 0)) {
         alert("可以走啦～");
         return;
       }
 
-      // 18:00 前走原有逻辑
       jokeClicks++;
       const index = (jokeClicks - 1) % jokes.length;
       const msg = jokes[index];
