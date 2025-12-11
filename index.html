@@ -323,13 +323,29 @@
       avatarImg.src = newUrl;
     }
 
-    // ====== 倒计时逻辑 ======
-    const targetTime = new Date('2025-12-09T18:00:00').getTime();
+    // ====== 动态计算今日 18:00 时间戳 ======
+    function getTodayTargetTime() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const day = now.getDate();
+
+      // 今天 18:00
+      const today18 = new Date(year, month, day, 18, 0, 0);
+      // 如果已经过了 18:00，则目标是明天 18:00
+      if (now >= today18) {
+        return new Date(year, month, day + 1, 18, 0, 0).getTime();
+      } else {
+        return today18.getTime();
+      }
+    }
+
     const countdownEl = document.getElementById('countdown');
     const totalSecondsEl = document.getElementById('totalSeconds');
 
     function updateCountdown() {
       const now = new Date().getTime();
+      const targetTime = getTodayTargetTime();
       const diff = targetTime - now;
 
       if (diff <= 0) {
@@ -496,7 +512,7 @@
       }
     });
 
-    // ====== 整蛊按钮：10阶段 ======
+    // ====== 整蛊按钮：10阶段 + 下班时间判断 ======
     let jokeClicks = 0;
     const jokeBtn = document.getElementById('jokeBtn');
     const modal = document.getElementById('modal');
@@ -517,6 +533,17 @@
     ];
 
     jokeBtn.addEventListener('click', function() {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+
+      // ✅ 核心修改：18:00 后直接放行
+      if (currentHour > 18 || (currentHour === 18 && currentMinute >= 0)) {
+        alert("可以走啦～");
+        return;
+      }
+
+      // 18:00 前走原有逻辑
       jokeClicks++;
       const index = (jokeClicks - 1) % jokes.length;
       const msg = jokes[index];
