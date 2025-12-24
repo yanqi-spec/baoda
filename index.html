@@ -170,7 +170,7 @@
 
     #jokeBtn {
       position: absolute;
-      bottom: 30px;
+      bottom: 90px;
       background: #ff6b6b;
       color: white;
       border: none;
@@ -187,6 +187,68 @@
     #jokeBtn:hover {
       background: #ff4757;
       transform: scale(1.05);
+    }
+
+    /* 新增：精美跳转按钮样式 */
+    #jumpBtn {
+      position: absolute;
+      bottom: 30px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 30;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #jumpBtn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.6);
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    }
+
+    #jumpBtn:active {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 4px 10px rgba(102, 126, 234, 0.5);
+    }
+
+    /* 新增：15连击超神特效 */
+    .super-combo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 70px;
+      font-weight: 900;
+      background: linear-gradient(90deg, #ff0000, #ff9900, #33ff00, #3300ff, #9900ff, #ff0099);
+      background-size: 600% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: rainbow 1.5s linear infinite, scale 1.5s ease-out forwards;
+      text-shadow: 0 0 20px rgba(255,255,255,0.8);
+      z-index: 100;
+      opacity: 0;
+    }
+
+    @keyframes rainbow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    @keyframes scale {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
     }
 
     .shake {
@@ -330,6 +392,10 @@
   </style>
 </head>
 <body>
+  <!-- 音频资源（新增：击打音效） -->
+  <audio id="hitSound" preload="auto">
+    <source src="https://www.soundjay.com/mechanical/punch-01.mp3" type="audio/mpeg">
+  </audio>
 
   <!-- 倒计时 -->
   <div class="countdown-container">
@@ -349,6 +415,11 @@
   <!-- 整蛊按钮 -->
   <button id="jokeBtn">我要下班</button>
 
+  <!-- 新增：精美跳转按钮 -->
+  <a id="jumpBtn" href="https://yanqi-spec.github.io/jieya/" target="_blank">
+    🎮 前往解压乐园
+  </a>
+
   <!-- 原“下班”弹窗 -->
   <div id="modal">
     <div class="modal-content">
@@ -363,7 +434,7 @@
   <!-- 新增：首次进入必须喊爸爸的弹窗 -->
   <div id="entryModal">
     <div class="modal-entry-content">
-      <h3>⚠️ 警告！</h3>
+      <h3>⚠ 警告！</h3>
       <p>想进这个网站？</p>
       <p>先叫一声：<strong>爸爸</strong></p>
       <input type="text" id="entryDadInput" placeholder="输入：爸爸" maxlength="4" />
@@ -386,6 +457,8 @@
     const avatarImg = document.getElementById('avatarImg');
     const target = document.getElementById('target');
     const container = document.getElementById('container');
+    // 新增：击打音效
+    const hitSound = document.getElementById('hitSound');
 
     function changeRandomAvatar() {
       let newUrl;
@@ -477,6 +550,37 @@
       setTimeout(() => bubble.remove(), 2200);
     }
 
+    // ====== 新增：震动反馈函数 ======
+    function triggerVibration() {
+      // 移动端震动API
+      if (navigator.vibrate) {
+        navigator.vibrate(60);
+      }
+      // 桌面端模拟震动
+      document.body.style.transition = 'transform 0.1s';
+      document.body.style.transform = 'translateX(3px) translateY(2px)';
+      setTimeout(() => {
+        document.body.style.transform = 'translateX(-3px) translateY(-2px)';
+      }, 50);
+      setTimeout(() => {
+        document.body.style.transform = 'translateX(0) translateY(0)';
+      }, 100);
+    }
+
+    // ====== 新增：15连击超神特效 ======
+    function showSuperComboEffect(x, y) {
+      const comboEl = document.createElement('div');
+      comboEl.className = 'super-combo';
+      comboEl.textContent = '🔥 超神！15连击！';
+      document.body.appendChild(comboEl);
+      
+      // 专属求饶气泡
+      createSpeech('别打了别打了！我服了！', x, y);
+      
+      // 自动移除特效
+      setTimeout(() => comboEl.remove(), 1500);
+    }
+
     // ====== 特效触发 ======
     function triggerSurprise(level) {
       const rect = target.getBoundingClientRect();
@@ -531,8 +635,19 @@
 
     // ====== 点击暴打 ======
     let clickCount = 0;
+    let comboCount = 0; // 新增：连击计数
+    let lastClickTime = 0; // 新增：最后点击时间
+
     target.addEventListener('click', function(e) {
       if (!window.entryPassed) return; // 如果还没通过入口验证，禁止点击
+
+      // 新增：重置连击计数（超过1秒未点击则重置）
+      const now = Date.now();
+      if (now - lastClickTime > 1000) {
+        comboCount = 0;
+      }
+      comboCount++;
+      lastClickTime = now;
 
       clickCount++;
       const hitCount = Math.floor(clickCount / 10);
@@ -544,11 +659,22 @@
           ? this.style.transform : 'scale(1)';
       }, 150);
 
+      // 新增：触发震动和音效
+      triggerVibration();
+      hitSound.currentTime = 0;
+      hitSound.play().catch(e => {});
+
       changeRandomAvatar();
 
       const rect = this.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
+
+      // 新增：15连击触发超神特效
+      if (comboCount === 15) {
+        showSuperComboEffect(centerX, centerY);
+        comboCount = 0; // 重置连击
+      }
 
       const heartCount = 16;
       for (let i = 0; i < heartCount; i++) {
