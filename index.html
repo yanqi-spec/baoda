@@ -168,9 +168,21 @@
       100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
     }
 
-    #jokeBtn {
+    /* 按钮容器 - 新增：统一管理底部所有按钮 */
+    .btn-container {
       position: absolute;
-      bottom: 90px;
+      bottom: 30px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      z-index: 30;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    #jokeBtn {
       background: #ff6b6b;
       color: white;
       border: none;
@@ -181,7 +193,8 @@
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       transition: all 0.2s;
-      z-index: 30;
+      flex: 1;
+      min-width: 180px;
     }
 
     #jokeBtn:hover {
@@ -189,66 +202,45 @@
       transform: scale(1.05);
     }
 
-    /* 新增：精美跳转按钮样式 */
-    #jumpBtn {
-      position: absolute;
-      bottom: 30px;
+    /* 新增：精美跳转链接样式 */
+    .jump-link {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      padding: 14px 32px;
+      padding: 12px 28px;
       font-size: 18px;
       font-weight: bold;
       border-radius: 50px;
       cursor: pointer;
       box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      z-index: 30;
       text-decoration: none;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      flex: 1;
+      min-width: 180px;
     }
 
-    #jumpBtn:hover {
+    .jump-link:hover {
       transform: translateY(-3px) scale(1.05);
       box-shadow: 0 10px 20px rgba(102, 126, 234, 0.6);
       background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
     }
 
-    #jumpBtn:active {
+    .jump-link:active {
       transform: translateY(-1px) scale(1.02);
       box-shadow: 0 4px 10px rgba(102, 126, 234, 0.5);
     }
 
-    /* 新增：15连击超神特效 */
-    .super-combo {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 70px;
-      font-weight: 900;
-      background: linear-gradient(90deg, #ff0000, #ff9900, #33ff00, #3300ff, #9900ff, #ff0099);
-      background-size: 600% 100%;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      animation: rainbow 1.5s linear infinite, scale 1.5s ease-out forwards;
-      text-shadow: 0 0 20px rgba(255,255,255,0.8);
-      z-index: 100;
-      opacity: 0;
+    /* 第二个跳转链接用不同渐变 */
+    .jump-link.second {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
 
-    @keyframes rainbow {
-      0% { background-position: 0% 50%; }
-      100% { background-position: 100% 50%; }
-    }
-
-    @keyframes scale {
-      0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-      100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+    .jump-link.second:hover {
+      background: linear-gradient(135deg, #ee7752 0%, #e73c7e 100%);
     }
 
     .shake {
@@ -389,13 +381,33 @@
     .modal-entry-content button:hover {
       background: #ff4757;
     }
+
+    /* 响应式适配 - 移动端按钮堆叠 */
+    @media (max-width: 768px) {
+      .btn-container {
+        gap: 10px;
+      }
+      #jokeBtn, .jump-link {
+        padding: 10px 20px;
+        font-size: 16px;
+        min-width: 140px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .btn-container {
+        flex-direction: column;
+        gap: 12px;
+        width: 85%;
+      }
+      #jokeBtn, .jump-link {
+        width: 100%;
+        min-width: unset;
+      }
+    }
   </style>
 </head>
 <body>
-  <!-- 音频资源（新增：击打音效） -->
-  <audio id="hitSound" preload="auto">
-    <source src="https://www.soundjay.com/mechanical/punch-01.mp3" type="audio/mpeg">
-  </audio>
 
   <!-- 倒计时 -->
   <div class="countdown-container">
@@ -412,13 +424,21 @@
     <div class="hint">点击暴打童小美！</div>
   </div>
 
-  <!-- 整蛊按钮 -->
-  <button id="jokeBtn">我要下班</button>
-
-  <!-- 新增：精美跳转按钮 -->
-  <a id="jumpBtn" href="https://yanqi-spec.github.io/jieya/" target="_blank">
-    🎮 前往解压乐园
-  </a>
+  <!-- 按钮容器 - 新增：统一包裹所有底部按钮 -->
+  <div class="btn-container">
+    <!-- 原整蛊按钮 -->
+    <button id="jokeBtn">我要下班</button>
+    
+    <!-- 新增：第一个跳转链接 -->
+    <a href="https://yanqi-spec.github.io/yanglegeyang/" target="_blank" class="jump-link">
+      🐑 羊了个羊
+    </a>
+    
+    <!-- 新增：第二个跳转链接 -->
+    <a href="https://yanqi-spec.github.io/shoujiduanchuanqi.github.io/" target="_blank" class="jump-link second">
+      🎮 开心就消一消
+    </a>
+  </div>
 
   <!-- 原“下班”弹窗 -->
   <div id="modal">
@@ -457,8 +477,6 @@
     const avatarImg = document.getElementById('avatarImg');
     const target = document.getElementById('target');
     const container = document.getElementById('container');
-    // 新增：击打音效
-    const hitSound = document.getElementById('hitSound');
 
     function changeRandomAvatar() {
       let newUrl;
@@ -550,37 +568,6 @@
       setTimeout(() => bubble.remove(), 2200);
     }
 
-    // ====== 新增：震动反馈函数 ======
-    function triggerVibration() {
-      // 移动端震动API
-      if (navigator.vibrate) {
-        navigator.vibrate(60);
-      }
-      // 桌面端模拟震动
-      document.body.style.transition = 'transform 0.1s';
-      document.body.style.transform = 'translateX(3px) translateY(2px)';
-      setTimeout(() => {
-        document.body.style.transform = 'translateX(-3px) translateY(-2px)';
-      }, 50);
-      setTimeout(() => {
-        document.body.style.transform = 'translateX(0) translateY(0)';
-      }, 100);
-    }
-
-    // ====== 新增：15连击超神特效 ======
-    function showSuperComboEffect(x, y) {
-      const comboEl = document.createElement('div');
-      comboEl.className = 'super-combo';
-      comboEl.textContent = '🔥 超神！15连击！';
-      document.body.appendChild(comboEl);
-      
-      // 专属求饶气泡
-      createSpeech('别打了别打了！我服了！', x, y);
-      
-      // 自动移除特效
-      setTimeout(() => comboEl.remove(), 1500);
-    }
-
     // ====== 特效触发 ======
     function triggerSurprise(level) {
       const rect = target.getBoundingClientRect();
@@ -635,19 +622,8 @@
 
     // ====== 点击暴打 ======
     let clickCount = 0;
-    let comboCount = 0; // 新增：连击计数
-    let lastClickTime = 0; // 新增：最后点击时间
-
     target.addEventListener('click', function(e) {
       if (!window.entryPassed) return; // 如果还没通过入口验证，禁止点击
-
-      // 新增：重置连击计数（超过1秒未点击则重置）
-      const now = Date.now();
-      if (now - lastClickTime > 1000) {
-        comboCount = 0;
-      }
-      comboCount++;
-      lastClickTime = now;
 
       clickCount++;
       const hitCount = Math.floor(clickCount / 10);
@@ -659,22 +635,11 @@
           ? this.style.transform : 'scale(1)';
       }, 150);
 
-      // 新增：触发震动和音效
-      triggerVibration();
-      hitSound.currentTime = 0;
-      hitSound.play().catch(e => {});
-
       changeRandomAvatar();
 
       const rect = this.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-
-      // 新增：15连击触发超神特效
-      if (comboCount === 15) {
-        showSuperComboEffect(centerX, centerY);
-        comboCount = 0; // 重置连击
-      }
 
       const heartCount = 16;
       for (let i = 0; i < heartCount; i++) {
